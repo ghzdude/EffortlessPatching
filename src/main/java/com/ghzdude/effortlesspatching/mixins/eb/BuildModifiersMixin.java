@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("UnresolvedMixinReference")
 @Mixin(BuildModes.class)
 public abstract class BuildModifiersMixin {
 
@@ -49,9 +50,9 @@ public abstract class BuildModifiersMixin {
         NonNullList<ItemStack> mainInventory = player.inventory.mainInventory;
         for (ItemStack invStack : mainInventory) {
             if (!placingStack.hasTagCompound() && !invStack.isEmpty() &&
-                    CompatHelper.isItemBlockProxy(invStack) &&
+                    (CompatHelper.isItemBlockProxy(invStack) ||
                     invStack.getItem() == placingStack.getItem() &&
-                    invStack.getMetadata() == placingStack.getMetadata()) {
+                    invStack.getMetadata() == placingStack.getMetadata())) {
 
                 usableStacks.add(invStack);
             }
