@@ -1,5 +1,6 @@
-package com.myname.mymodid;
+package com.ghzdude.effortlesspatching;
 
+import com.ghzdude.effortlesspatching.Tags;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
@@ -16,7 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.12.2]")
-public class MyMod {
+public class EffortlessPatchingCore {
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MODID);
 

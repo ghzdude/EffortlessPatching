@@ -38,5 +38,7 @@
  * For more details, see https://docs.gradle.org/8.4/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
+    implementation rfg.deobf("curse.maven:effortless-building-302113:2847346")
 
+    runtimeOnly("gregtech:gregtech:2.8.7-beta")
 }
