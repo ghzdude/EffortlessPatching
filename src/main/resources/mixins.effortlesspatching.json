@@ -6,8 +6,11 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "eb.BuildModifiersMixin",
+    "eb.EventHandlerMixin",
     "eb.SurvivalPatch"
   ],
-  "client": [],
+  "client": [
+    "mc.PlayerReachMixin"
+  ],
   "server": []
 }

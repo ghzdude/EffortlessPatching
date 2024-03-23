@@ -36,7 +36,12 @@ public abstract class BuildModifiersMixin {
             BlockPreviewRenderer.onBlocksPlaced();
             return;
         }
-        hitVec = hitVec.normalize();
+
+        hitVec = hitVec.subtract(
+                ((int) hitVec.x),
+                ((int) hitVec.y),
+                ((int) hitVec.z)
+        );
 
         //Get itemstack
         ItemStack placingStack = player.getHeldItem(EnumHand.MAIN_HAND);
@@ -70,11 +75,19 @@ public abstract class BuildModifiersMixin {
                 copy = usableStacks.get(0);
             }
 
+            if (CompatHelper.isItemBlockProxy(copy)) {
+                copy = CompatHelper.getItemBlockFromStack(copy);
+                //handle empty bag somehow
+                if (copy.isEmpty())
+                    usableStacks.remove(0);
+            }
+
             IBlockState state = Block.getBlockFromItem(copy.getItem())
                     .getStateForPlacement(world, pos, sideHit, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z,
                             copy.getMetadata(), player, activeHand);
 
-            if (SurvivalHelper.placeBlock(world, player, pos, state, placingStack,
+//            copy.onItemUse(player, world, pos, activeHand, sideHit, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z);
+            if (SurvivalHelper.placeBlock(world, player, pos, state, copy,
                     sideHit, hitVec, false, false, false) && !player.isCreative()) {
                 copy.shrink(1);
             }

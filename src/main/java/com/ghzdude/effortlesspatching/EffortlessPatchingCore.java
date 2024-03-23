@@ -8,6 +8,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -20,6 +21,10 @@ import org.apache.logging.log4j.Logger;
 public class EffortlessPatchingCore {
 
     public static final Logger LOGGER = LogManager.getLogger(Tags.MODID);
+    @SidedProxy(modId = Tags.MODID,
+            clientSide = "com.ghzdude.effortlesspatching.ClientProxy",
+            serverSide = "com.ghzdude.effortlesspatching.CommonProxy")
+    private static CommonProxy proxy;
 
     @EventHandler
     // preInit "Run before anything else. Read your config, create blocks, items, etc. (Remove if not needed)
@@ -50,6 +55,7 @@ public class EffortlessPatchingCore {
     @EventHandler
     // load "Do your mod setup. Build whatever data structures you care about." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.register(proxy);
     }
 
     @EventHandler
