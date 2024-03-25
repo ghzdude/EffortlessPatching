@@ -2,6 +2,7 @@ package com.ghzdude.effortlesspatching;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import nl.requios.effortlessbuilding.EffortlessBuilding;
@@ -25,12 +26,15 @@ public class CommonProxy {
             event.setCanceled(true);
         }
         
+//        var hitVec = ForgeHooks.rayTraceEyeHitVec(player, 1024);
         var hitVec = event.getHitVec();
+        if (hitVec == null) return;
+
         var blockPos = event.getPos();
         var currentState = event.getWorld().getBlockState(blockPos);
         var stack = event.getItemStack();
-        var nextState = Block.getBlockFromItem(stack.getItem())
-                .getStateForPlacement(event.getWorld(), blockPos, event.getFace(),
+        var block = Block.getBlockFromItem(stack.getItem());
+        var nextState = block.getStateForPlacement(event.getWorld(), blockPos, event.getFace(),
                         (float) hitVec.x, (float) hitVec.y, (float) hitVec.z,
                         stack.getMetadata(), event.getEntityPlayer(), event.getHand());
         if (!player.world.isRemote) {

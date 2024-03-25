@@ -1,7 +1,6 @@
 package com.ghzdude.effortlesspatching.mixins.eb;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import com.ghzdude.effortlesspatching.StackQueue;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -11,18 +10,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import nl.requios.effortlessbuilding.buildmode.BuildModes;
+import nl.requios.effortlessbuilding.buildmode.ModeSettingsManager;
 import nl.requios.effortlessbuilding.buildmodifier.BuildModifiers;
 import nl.requios.effortlessbuilding.compatibility.CompatHelper;
-import nl.requios.effortlessbuilding.helper.SurvivalHelper;
 import nl.requios.effortlessbuilding.render.BlockPreviewRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("UnresolvedMixinReference")
 @Mixin(BuildModes.class)
 public abstract class BuildModifiersMixin {
 
@@ -32,6 +29,10 @@ public abstract class BuildModifiersMixin {
     private static void BlockPlacePatch(EntityPlayer player, List<BlockPos> startBlocks, EnumFacing sideHit, Vec3d hitVec, boolean isStart) {
         World world = player.world;
         List<BlockPos> toPlace = BuildModifiers.findCoordinates(player, startBlocks);
+        var mode = ModeSettingsManager.getModeSettings(player).getBuildMode();
+        if (mode == BuildModes.BuildModeEnum.NORMAL)
+            return;
+
         if (world.isRemote) {
             BlockPreviewRenderer.onBlocksPlaced();
             return;
@@ -51,13 +52,12 @@ public abstract class BuildModifiersMixin {
             activeHand = EnumHand.OFF_HAND;
         }
 
-        List<ItemStack> usableStacks = new ArrayList<>();
+        StackQueue usableStacks = new StackQueue();
         NonNullList<ItemStack> mainInventory = player.inventory.mainInventory;
         for (ItemStack invStack : mainInventory) {
             if (!placingStack.hasTagCompound() && !invStack.isEmpty() &&
-                    (CompatHelper.isItemBlockProxy(invStack) ||
                     invStack.getItem() == placingStack.getItem() &&
-                    invStack.getMetadata() == placingStack.getMetadata())) {
+                    invStack.getMetadata() == placingStack.getMetadata()) {
 
                 usableStacks.add(invStack);
             }
@@ -68,29 +68,20 @@ public abstract class BuildModifiersMixin {
             if (!world.isBlockLoaded(pos, true))
                 continue;
 
-            ItemStack copy = usableStacks.get(0);
-            if (copy.isEmpty()) {
-                usableStacks.remove(0);
-                if (usableStacks.isEmpty()) break;
-                copy = usableStacks.get(0);
-            }
+            ItemStack copy = usableStacks.popStack(1, player.isCreative());
 
-            if (CompatHelper.isItemBlockProxy(copy)) {
-                copy = CompatHelper.getItemBlockFromStack(copy);
-                //handle empty bag somehow
-                if (copy.isEmpty())
-                    usableStacks.remove(0);
-            }
+//            IBlockState state = Block.getBlockFromItem(copy.getItem())
+//                    .getStateForPlacement(world, pos, sideHit, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z,
+//                            copy.getMetadata(), player, activeHand);
 
-            IBlockState state = Block.getBlockFromItem(copy.getItem())
-                    .getStateForPlacement(world, pos, sideHit, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z,
-                            copy.getMetadata(), player, activeHand);
-
-//            copy.onItemUse(player, world, pos, activeHand, sideHit, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z);
-            if (SurvivalHelper.placeBlock(world, player, pos, state, copy,
-                    sideHit, hitVec, false, false, false) && !player.isCreative()) {
-                copy.shrink(1);
+            int j = copy.getCount(), k = copy.getItemDamage();
+            copy.onItemUse(player, world, pos, activeHand, sideHit, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z);
+            if (player.isCreative()) {
+                copy.setCount(j);
+                copy.setItemDamage(k);
             }
+//                SurvivalHelper.placeBlock(world, player, pos, state, copy,
+//                        sideHit, hitVec, false, false, false);
         }
     }
 }
