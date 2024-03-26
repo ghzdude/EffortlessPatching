@@ -9,8 +9,6 @@
     "eb.EventHandlerMixin",
     "eb.SurvivalPatch"
   ],
-  "client": [
-    "mc.PlayerReachMixin"
-  ],
+  "client": [],
   "server": []
 }
