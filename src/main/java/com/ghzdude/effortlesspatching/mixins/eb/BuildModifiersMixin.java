@@ -1,6 +1,6 @@
 package com.ghzdude.effortlesspatching.mixins.eb;
 
-import com.ghzdude.effortlesspatching.StackQueue;
+import com.ghzdude.effortlesspatching.util.StackQueue;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -68,7 +68,7 @@ public abstract class BuildModifiersMixin {
             if (!world.isBlockLoaded(pos, true))
                 continue;
 
-            ItemStack copy = usableStacks.popStack(1, player.isCreative());
+            ItemStack copy = usableStacks.popStack();
 
 //            IBlockState state = Block.getBlockFromItem(copy.getItem())
 //                    .getStateForPlacement(world, pos, sideHit, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z,
